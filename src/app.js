@@ -6,6 +6,7 @@ import { env } from './config/env.config.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { apiLimiter } from './middleware/rateLimiter.middleware.js';
 import CustomError from './utils/customError.util.js';
+import logger from './config/winston.config.js';
 
 import authRoutes from './modules/auth/auth.route.js';
 import productRoutes from './modules/product/product.route.js';
@@ -25,7 +26,15 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
-// Apply rate limiting to all requests
+app.use((req, res, next) => {
+  logger.info(`Incoming Request: [${req.method}] ${req.originalUrl}`);
+  next();
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'success', message: 'Backend is healthy!' });
+});
+
 app.use('/api', apiLimiter);
 
 app.use('/api/auth', authRoutes);
