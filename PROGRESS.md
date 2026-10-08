@@ -14,9 +14,9 @@ This is a production-grade, highly scalable luxury watch e-commerce REST API bui
 6. **Robust Error Handling**: Utilizing a custom `CustomError` class that seamlessly feeds into a global Express error-handler. Uncaught exceptions and unhandled rejections cleanly exit the process.
 
 ## 🔐 Authentication Flow
-- **OTP Verification**: Simulated SMS/WhatsApp dispatcher generates a 6-digit code stored in Redis for 5 minutes (`/send-otp`).
+- **Google OAuth Login**: Integrated Google Login utilizing OAuth2 tokens directly. Validates Google Tokens via Google's `userinfo` API. Creates or updates user records (`/api/auth/google`).
 - **Access & Refresh Tokens**: 
-  - On successful `/verify-otp`, a short-lived `accessToken` and long-lived `refreshToken` are generated.
+  - On successful Google login, a short-lived `accessToken` and long-lived `refreshToken` are generated.
   - The `refreshToken` is saved in the database inside the User document and sent as an HTTP-only cookie.
   - The `accessToken` is sent in a standard cookie and JSON response.
   - `POST /refresh-token` validates the HTTP-only cookie against the DB and issues a fresh `accessToken`.
@@ -24,14 +24,14 @@ This is a production-grade, highly scalable luxury watch e-commerce REST API bui
 
 ## 📦 Modules & Features Implemented
 ### 1. Auth Module (`/api/auth`)
-- `POST /send-otp` - Validates phone number and fires OTP.
-- `POST /verify-otp` - Validates OTP, handles User upsert, sets cookies.
+- `POST /google` - Validates Google token, handles User upsert, sets cookies.
 - `POST /logout` - Nullifies refresh token in DB and clears client cookies.
-- `GET /me` - Fetches authenticated user profile.
 - `POST /refresh-token` - Validates RT and issues new AT.
 
 ### 2. Product Module (`/api/products`)
-- `GET /` - Advanced filtering by category, brand, min/max price, and pagination.
+- `GET /` - Fetches all products, leveraging Redis caching (`products:all` with 24-hour TTL) for ultra-fast frontend client-side filtering.
+- `GET /featured` - Fetches best seller products only, cached in Redis (`products:featured` with 24-hour TTL).
+- Schema updated to align perfectly with frontend (added `mrp`, enforced `stockQuantity`, dropped boolean `inStock`).
 - `GET /:sku` - Cache-aside pattern leveraging Redis (1-hour TTL).
 - `POST /admin` - Admin-only protected route to create products.
 
@@ -39,7 +39,8 @@ This is a production-grade, highly scalable luxury watch e-commerce REST API bui
 - `POST /create` - Implements **Atomic Inventory Safety** using `$gte` and `$inc` during item checkout to prevent race conditions. Initializes pending orders and prepares payment gateway payloads.
 
 ### 4. User Module (`/api/users`)
-- `GET /profile` - Retrieve self.
+- `GET /me` - Retrieve authenticated user profile.
+- `PUT /profile` - Update user profile metadata (phone, name, address).
 - `POST /address` - Append a new shipping address using `$push`.
 
 ### 5. Webhook Module (`/api/webhooks`)

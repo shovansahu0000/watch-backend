@@ -3,15 +3,38 @@ import ApiResponse from '../../utils/apiResponse.util.js';
 import asyncHandler from '../../utils/asyncHandler.util.js';
 
 class AuthController {
-  sendOtp = asyncHandler(async (req, res) => {
-    const { phone } = req.body;
-    const result = await authService.sendOtp(phone);
-    return ApiResponse.success(res, result, 'OTP sent successfully');
-  });
+  // sendOtp = asyncHandler(async (req, res) => {
+  //   const { phone } = req.body;
+  //   const result = await authService.sendOtp(phone);
+  //   return ApiResponse.success(res, result, 'OTP sent successfully');
+  // });
 
-  verifyOtp = asyncHandler(async (req, res) => {
-    const { phone, otp } = req.body;
-    const { user, accessToken, refreshToken } = await authService.verifyOtp(phone, otp);
+  // verifyOtp = asyncHandler(async (req, res) => {
+  //   const { phone, otp } = req.body;
+  //   const { user, accessToken, refreshToken } = await authService.verifyOtp(phone, otp);
+
+  //   const refreshCookieOptions = {
+  //     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  //     httpOnly: true,
+  //     secure: process.env.NODE_ENV === 'production',
+  //     sameSite: 'strict'
+  //   };
+
+  //   const accessCookieOptions = {
+  //     expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+  //     secure: process.env.NODE_ENV === 'production',
+  //     sameSite: 'strict'
+  //   };
+
+  //   res.cookie('refreshToken', refreshToken, refreshCookieOptions);
+  //   res.cookie('accessToken', accessToken, accessCookieOptions);
+
+  //   return ApiResponse.success(res, { user, accessToken }, 'Logged in successfully');
+  // });
+
+  googleLogin = asyncHandler(async (req, res) => {
+    const { token } = req.body;
+    const { user, accessToken, refreshToken } = await authService.googleLogin(token);
 
     const refreshCookieOptions = {
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -29,7 +52,7 @@ class AuthController {
     res.cookie('refreshToken', refreshToken, refreshCookieOptions);
     res.cookie('accessToken', accessToken, accessCookieOptions);
 
-    return ApiResponse.success(res, { user, accessToken }, 'Logged in successfully');
+    return ApiResponse.success(res, { user, accessToken }, 'Logged in with Google successfully');
   });
 
   logout = asyncHandler(async (req, res) => {
@@ -51,10 +74,7 @@ class AuthController {
     return ApiResponse.success(res, null, 'Logged out successfully');
   });
 
-  getMe = asyncHandler(async (req, res) => {
-    const user = await authService.getMe(req.user._id);
-    return ApiResponse.success(res, { user }, 'User details retrieved');
-  });
+
 
   refreshToken = asyncHandler(async (req, res) => {
     const token = req.cookies.refreshToken;

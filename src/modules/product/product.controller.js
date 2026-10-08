@@ -4,8 +4,13 @@ import asyncHandler from '../../utils/asyncHandler.util.js';
 
 class ProductController {
   getProducts = asyncHandler(async (req, res) => {
-    const result = await productService.getProducts(req.query);
+    const result = await productService.getProducts();
     return ApiResponse.success(res, result, 'Products retrieved successfully');
+  });
+
+  getFeaturedProducts = asyncHandler(async (req, res) => {
+    const result = await productService.getFeaturedProducts();
+    return ApiResponse.success(res, result, 'Featured products retrieved successfully');
   });
 
   getProductBySku = asyncHandler(async (req, res) => {

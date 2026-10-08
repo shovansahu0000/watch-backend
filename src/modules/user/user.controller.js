@@ -3,14 +3,14 @@ import ApiResponse from '../../utils/apiResponse.util.js';
 import asyncHandler from '../../utils/asyncHandler.util.js';
 
 class UserController {
-  getProfile = asyncHandler(async (req, res) => {
-    const user = await userService.getProfile(req.user._id);
-    return ApiResponse.success(res, { user }, 'Profile retrieved successfully');
+  getMe = asyncHandler(async (req, res) => {
+    const user = await userService.getMe(req.user._id);
+    return ApiResponse.success(res, { user }, 'User details retrieved successfully');
   });
 
-  addAddress = asyncHandler(async (req, res) => {
-    const user = await userService.addAddress(req.user._id, req.body);
-    return ApiResponse.success(res, { user }, 'Address added successfully');
+  updateProfile = asyncHandler(async (req, res) => {
+    const user = await userService.updateProfile(req.user._id, req.body);
+    return ApiResponse.success(res, { user }, 'Profile updated successfully');
   });
 }
 

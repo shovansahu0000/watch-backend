@@ -2,7 +2,8 @@ export const REDIS_KEYS = {
   OTP: (phone) => `otp:${phone}`,
   PRODUCT: (sku) => `product:${sku}`,
   FEATURED_PRODUCTS: 'products:featured',
-  USER_CART: (userId) => `cart:${userId}`
+  USER_CART: (userId) => `cart:${userId}`,
+  ALL_PRODUCTS: 'products:all'
 };
 
 export const ORDER_STATUS = {

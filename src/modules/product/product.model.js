@@ -8,9 +8,14 @@ const productSchema = new Schema({
   brand: { type: String, required: true, index: true },
   category: { type: String, enum: ['Male', 'Female'], required: true, index: true },
   price: { type: Number, required: true },
-  stockQuantity: { type: Number, required: true, min: 0 },
-  images: [{ type: String }],
-  isBestSeller: { type: Boolean, default: false, index: true }
+  mrp: { type: Number },
+  stockQuantity: { type: Number, required: true, min: 0, default: 0 },
+  image: { type: String, required: true },
+  description: { type: String },
+  movement: { type: String },
+  caseSize: { type: String },
+  waterResistance: { type: String },
+  bestSeller: { type: Boolean, default: false, index: true }
 }, { timestamps: true });
 
 export const getWriteProduct = () => {

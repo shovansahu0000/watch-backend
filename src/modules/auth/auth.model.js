@@ -4,16 +4,19 @@ import CustomError from '../../utils/customError.util.js';
 import { ROLES } from '../../config/constants.js';
 
 const userSchema = new Schema({
-  phone: { type: String, required: true, unique: true },
+  phone: { type: String, unique: true, sparse: true },
+  email: { type: String, unique: true, sparse: true },
+  googleId: { type: String, unique: true, sparse: true },
   role: { type: String, enum: Object.values(ROLES), default: ROLES.USER },
   name: { type: String },
-  addresses: [{
-    street: String,
+  picture: { type: String },
+  address: {
+    line1: String,
     city: String,
     state: String,
-    zipCode: String,
+    postalCode: String,
     country: String
-  }],
+  },
   refreshToken: { type: String }
 }, { timestamps: true });
 

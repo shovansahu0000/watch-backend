@@ -7,7 +7,8 @@ import { restrictToAdmin } from '../../middleware/admin.middleware.js';
 
 const router = Router();
 
-router.get('/', validate(productQuerySchema, 'query'), productController.getProducts);
+router.get('/featured', productController.getFeaturedProducts);
+router.get('/', productController.getProducts);
 router.get('/:sku', productController.getProductBySku);
 
 router.post('/admin', authenticate, restrictToAdmin, validate(createProductSchema), productController.createProduct);
