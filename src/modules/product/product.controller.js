@@ -23,6 +23,12 @@ class ProductController {
     const product = await productService.createProduct(req.body);
     return ApiResponse.success(res, { product }, 'Product created successfully', 201);
   });
+
+  updateProduct = asyncHandler(async (req, res) => {
+    const { sku } = req.params;
+    const product = await productService.updateProduct(sku, req.body);
+    return ApiResponse.success(res, { product }, 'Product updated successfully');
+  });
 }
 
 export default new ProductController();

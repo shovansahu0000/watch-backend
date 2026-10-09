@@ -4,6 +4,7 @@ export const REDIS_KEYS = {
   FEATURED_PRODUCTS: "products:featured",
   USER_CART: (userId) => `cart:${userId}`,
   ALL_PRODUCTS: "products:all",
+  ALL_BRANDS: "brands:all",
 };
 
 export const ORDER_STATUS = {

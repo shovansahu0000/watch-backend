@@ -13,6 +13,7 @@ import productRoutes from './modules/product/product.route.js';
 import orderRoutes from './modules/order/order.route.js';
 import userRoutes from './modules/user/user.route.js';
 import webhookRoutes from './modules/webhook/webhook.route.js';
+import brandRoutes from './modules/brand/brand.route.js';
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use('/api', apiLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/brands', brandRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/webhooks', webhookRoutes);
