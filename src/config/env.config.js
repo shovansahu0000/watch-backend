@@ -15,6 +15,7 @@ const envSchema = Joi.object({
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('30d'),
   FRONTEND_URL: Joi.string().default('http://localhost:5173'),
   DASHBOARD_URL: Joi.string().default('http://localhost:5174'),
+  RESEND_API_KEY: Joi.string().required(),
 }).unknown(true);
 
 const { error, value: envVars } = envSchema.validate(process.env);

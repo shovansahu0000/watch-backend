@@ -5,7 +5,6 @@ export const generateOtp = () => {
 };
 
 export const dispatchSms = async (phone, otp) => {
-  // Mock SMS/WhatsApp Dispatcher
   logger.info(`[MOCK SMS] Sending OTP ${otp} to phone ${phone}`);
   return true;
 };

@@ -1,5 +1,6 @@
 export const REDIS_KEYS = {
   OTP: (phone) => `otp:${phone}`,
+  ADMIN_OTP: (email) => `admin_otp:${email}`,
   PRODUCT: (sku) => `product:${sku}`,
   FEATURED_PRODUCTS: "products:featured",
   USER_CART: (userId) => `cart:${userId}`,
