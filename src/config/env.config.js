@@ -13,7 +13,8 @@ const envSchema = Joi.object({
   JWT_ACCESS_EXPIRES_IN: Joi.string().default('1d'),
   JWT_REFRESH_SECRET: Joi.string().required(),
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('30d'),
-  FRONTEND_URL: Joi.string().default('http://localhost:3000'),
+  FRONTEND_URL: Joi.string().default('http://localhost:5173'),
+  DASHBOARD_URL: Joi.string().default('http://localhost:5174'),
 }).unknown(true);
 
 const { error, value: envVars } = envSchema.validate(process.env);

@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import axios from "axios";
-import redisClient from "../../config/redis.config.js";
-import { REDIS_KEYS } from "../../config/constants.js";
+// import redisClient from "../../config/redis.config.js";
+// import { REDIS_KEYS } from "../../config/constants.js";
 import { getWriteUser, getReadUser } from "./auth.model.js";
-import { generateOtp, dispatchSms } from "./auth.util.js";
+// import { generateOtp, dispatchSms } from "./auth.util.js";
 import CustomError from "../../utils/customError.util.js";
 import { env } from "../../config/env.config.js";
 
@@ -58,8 +58,6 @@ class AuthService {
 
   //   return { user, accessToken, refreshToken };
   // }
-
-
 
   async refreshAccessToken(token) {
     if (!token) throw new CustomError("Refresh token is required", 401);
