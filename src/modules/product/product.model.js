@@ -1,12 +1,13 @@
 import { Schema } from 'mongoose';
 import { getWriteDB, getReadDB } from '../../config/db.config.js';
 import CustomError from '../../utils/customError.util.js';
+import { CATEGORIES } from '../../config/constants.js';
 
 const productSchema = new Schema({
   sku: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   brand: { type: String, required: true, index: true },
-  category: { type: String, enum: ['Male', 'Female'], required: true, index: true },
+  category: { type: String, enum: Object.values(CATEGORIES), required: true, index: true },
   price: { type: Number, required: true },
   mrp: { type: Number },
   stockQuantity: { type: Number, required: true, min: 0, default: 0 },
