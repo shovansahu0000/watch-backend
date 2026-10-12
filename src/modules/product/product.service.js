@@ -196,9 +196,25 @@ class ProductService {
       }
     }
 
+    const unsettableFields = ['caseSize', 'movement', 'waterResistance', 'description', 'mrp'];
+    const setOps = {};
+    const unsetOps = {};
+
+    for (const [key, val] of Object.entries(data)) {
+      if ((val === '' || val === null) && unsettableFields.includes(key)) {
+        unsetOps[key] = 1;
+      } else if (val !== '' && val !== null) {
+        setOps[key] = val;
+      }
+    }
+
+    const updateOps = {};
+    if (Object.keys(setOps).length > 0) updateOps.$set = setOps;
+    if (Object.keys(unsetOps).length > 0) updateOps.$unset = unsetOps;
+
     let product;
     try {
-      product = await ProductWrite.findOneAndUpdate({ sku }, data, { new: true, runValidators: true });
+      product = await ProductWrite.findOneAndUpdate({ sku }, updateOps, { new: true, runValidators: true });
     } catch (dbErr) {
       for (const publicId of newlyUploadedPublicIds) {
         await deleteFromCloudinary(publicId).catch(() => {});
