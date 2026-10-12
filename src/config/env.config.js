@@ -16,6 +16,9 @@ const envSchema = Joi.object({
   FRONTEND_URL: Joi.string().default('http://localhost:5173'),
   DASHBOARD_URL: Joi.string().default('http://localhost:5174'),
   RESEND_API_KEY: Joi.string().required(),
+  CLOUDINARY_CLOUD_NAME: Joi.string().required(),
+  CLOUDINARY_API_KEY: Joi.string().required(),
+  CLOUDINARY_API_SECRET: Joi.string().required(),
 }).unknown(true);
 
 const { error, value: envVars } = envSchema.validate(process.env);

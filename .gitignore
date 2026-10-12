@@ -1,6 +1,8 @@
 # Logs
 logs
 *.log
+public/uploads/*
+!public/uploads/.gitkeep
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

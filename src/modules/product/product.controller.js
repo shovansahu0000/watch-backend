@@ -20,14 +20,20 @@ class ProductController {
   });
 
   createProduct = asyncHandler(async (req, res) => {
-    const product = await productService.createProduct(req.body);
+    const product = await productService.createProduct(req.body, req.files);
     return ApiResponse.success(res, { product }, 'Product created successfully', 201);
   });
 
   updateProduct = asyncHandler(async (req, res) => {
     const { sku } = req.params;
-    const product = await productService.updateProduct(sku, req.body);
+    const product = await productService.updateProduct(sku, req.body, req.files);
     return ApiResponse.success(res, { product }, 'Product updated successfully');
+  });
+
+  deleteProduct = asyncHandler(async (req, res) => {
+    const { sku } = req.params;
+    const result = await productService.deleteProduct(sku);
+    return ApiResponse.success(res, result, 'Product deleted successfully');
   });
 }
 

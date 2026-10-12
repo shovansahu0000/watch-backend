@@ -3,6 +3,7 @@ import { getReadBrand } from "../brand/brand.model.js";
 import redisClient from "../../config/redis.config.js";
 import { REDIS_KEYS } from "../../config/constants.js";
 import CustomError from "../../utils/customError.util.js";
+import { uploadOnCloudinary, deleteFromCloudinary, extractPublicId } from "../../utils/cloudinary.util.js";
 
 class ProductService {
   async _updateProductsCache() {
@@ -68,7 +69,7 @@ class ProductService {
     return product;
   }
 
-  async createProduct(data) {
+  async createProduct(data, files) {
     const BrandRead = getReadBrand();
     const brandExists = await BrandRead.findOne({ name: { $regex: new RegExp(`^${data.brand}$`, 'i') } });
     if (!brandExists) {
@@ -81,7 +82,56 @@ class ProductService {
       throw new CustomError("Product with this SKU already exists", 400);
     }
 
-    const product = await ProductWrite.create(data);
+    const uploadedCloudinaryPublicIds = [];
+
+    const hasAllUploadedFiles = files?.front?.[0] && files?.left?.[0] && files?.right?.[0];
+    const hasExistingImages = data.images?.front && data.images?.left && data.images?.right;
+
+    if (!hasAllUploadedFiles && !hasExistingImages) {
+      throw new CustomError("All 3 watch images (front, left, and right views) are required.", 400);
+    }
+
+    if (hasAllUploadedFiles) {
+      try {
+        const frontUpload = await uploadOnCloudinary(files.front[0].path, 'watches');
+        uploadedCloudinaryPublicIds.push(frontUpload.publicId);
+
+        const leftUpload = await uploadOnCloudinary(files.left[0].path, 'watches');
+        uploadedCloudinaryPublicIds.push(leftUpload.publicId);
+
+        const rightUpload = await uploadOnCloudinary(files.right[0].path, 'watches');
+        uploadedCloudinaryPublicIds.push(rightUpload.publicId);
+
+        data.images = {
+          front: frontUpload.url,
+          left: leftUpload.url,
+          right: rightUpload.url,
+        };
+
+        data.imagePublicIds = {
+          front: frontUpload.publicId,
+          left: leftUpload.publicId,
+          right: rightUpload.publicId,
+        };
+
+        data.image = frontUpload.url;
+      } catch (err) {
+        for (const publicId of uploadedCloudinaryPublicIds) {
+          await deleteFromCloudinary(publicId).catch(() => {});
+        }
+        throw err;
+      }
+    }
+
+    let product;
+    try {
+      product = await ProductWrite.create(data);
+    } catch (dbErr) {
+      for (const publicId of uploadedCloudinaryPublicIds) {
+        await deleteFromCloudinary(publicId).catch(() => {});
+      }
+      throw dbErr;
+    }
 
     await this._updateProductsCache();
     if (product.bestSeller) {
@@ -91,7 +141,7 @@ class ProductService {
     return product;
   }
 
-  async updateProduct(sku, data) {
+  async updateProduct(sku, data, files) {
     if (data.brand) {
       const BrandRead = getReadBrand();
       const brandExists = await BrandRead.findOne({ name: { $regex: new RegExp(`^${data.brand}$`, 'i') } });
@@ -101,10 +151,67 @@ class ProductService {
     }
 
     const ProductWrite = getWriteProduct();
-    const product = await ProductWrite.findOneAndUpdate({ sku }, data, { new: true, runValidators: true });
-    
+    const existingProduct = await ProductWrite.findOne({ sku });
+    if (!existingProduct) {
+      throw new CustomError("Product not found", 404);
+    }
+
+    const newlyUploadedPublicIds = [];
+    const oldCloudinaryToDelete = [];
+    const updatedImages = {
+      ...(existingProduct.images?.toObject?.() || existingProduct.images || {})
+    };
+    const updatedPublicIds = {
+      ...(existingProduct.imagePublicIds?.toObject?.() || existingProduct.imagePublicIds || {})
+    };
+
+    const views = ['front', 'left', 'right'];
+    for (const view of views) {
+      if (files?.[view]?.[0]) {
+        try {
+          const uploadRes = await uploadOnCloudinary(files[view][0].path, 'watches');
+          newlyUploadedPublicIds.push(uploadRes.publicId);
+
+          const oldId = updatedPublicIds[view] || extractPublicId(updatedImages[view]);
+          if (oldId) {
+            oldCloudinaryToDelete.push(oldId);
+          }
+
+          updatedImages[view] = uploadRes.url;
+          updatedPublicIds[view] = uploadRes.publicId;
+        } catch (err) {
+          for (const publicId of newlyUploadedPublicIds) {
+            await deleteFromCloudinary(publicId).catch(() => {});
+          }
+          throw err;
+        }
+      }
+    }
+
+    if (newlyUploadedPublicIds.length > 0) {
+      data.images = updatedImages;
+      data.imagePublicIds = updatedPublicIds;
+      if (updatedImages.front) {
+        data.image = updatedImages.front;
+      }
+    }
+
+    let product;
+    try {
+      product = await ProductWrite.findOneAndUpdate({ sku }, data, { new: true, runValidators: true });
+    } catch (dbErr) {
+      for (const publicId of newlyUploadedPublicIds) {
+        await deleteFromCloudinary(publicId).catch(() => {});
+      }
+      throw dbErr;
+    }
+
     if (!product) {
       throw new CustomError("Product not found", 404);
+    }
+
+    for (const oldId of oldCloudinaryToDelete) {
+      await deleteFromCloudinary(oldId).catch(() => {});
     }
 
     await redisClient.setex(REDIS_KEYS.PRODUCT(sku), 3600, JSON.stringify(product));
@@ -114,6 +221,28 @@ class ProductService {
     }
 
     return product;
+  }
+
+  async deleteProduct(sku) {
+    const ProductWrite = getWriteProduct();
+    const product = await ProductWrite.findOneAndDelete({ sku });
+    if (!product) {
+      throw new CustomError("Product not found", 404);
+    }
+
+    const views = ['front', 'left', 'right'];
+    for (const view of views) {
+      const publicId = product.imagePublicIds?.[view] || extractPublicId(product.images?.[view]);
+      if (publicId) {
+        await deleteFromCloudinary(publicId).catch(() => {});
+      }
+    }
+
+    await redisClient.del(REDIS_KEYS.PRODUCT(sku));
+    await this._updateProductsCache();
+    await this._updateFeaturedProductsCache();
+
+    return { sku, message: "Product and associated images deleted successfully" };
   }
 }
 

@@ -1,6 +1,16 @@
 import logger from '../config/winston.config.js';
+import { deleteLocalFile } from '../utils/cloudinary.util.js';
 
 export const errorHandler = (err, req, res, next) => {
+  if (req.files) {
+    Object.values(req.files).flat().forEach((file) => {
+      if (file?.path) deleteLocalFile(file.path);
+    });
+  }
+  if (req.file?.path) {
+    deleteLocalFile(req.file.path);
+  }
+
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
@@ -14,14 +24,13 @@ export const errorHandler = (err, req, res, next) => {
       stack: err.stack
     });
   } else {
-    // Production
     if (err.isOperational) {
       res.status(err.statusCode).json({
         status: err.status,
         message: err.message
       });
     } else {
-      logger.error('ERROR 💥', err);
+      logger.error('ERROR', err);
       res.status(500).json({
         status: 'error',
         message: 'Something went very wrong!'

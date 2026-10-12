@@ -11,13 +11,34 @@ const productSchema = new Schema({
   price: { type: Number, required: true },
   mrp: { type: Number },
   stockQuantity: { type: Number, required: true, min: 0, default: 0 },
-  image: { type: String, required: true },
+  images: {
+    front: { type: String, required: true },
+    left: { type: String, required: true },
+    right: { type: String, required: true },
+  },
+  imagePublicIds: {
+    front: { type: String },
+    left: { type: String },
+    right: { type: String },
+  },
+  image: { type: String },
   description: { type: String },
   movement: { type: String },
   caseSize: { type: String },
   waterResistance: { type: String },
   bestSeller: { type: Boolean, default: false, index: true }
-}, { timestamps: true });
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+productSchema.pre('save', function (next) {
+  if (this.images?.front) {
+    this.image = this.images.front;
+  }
+  next();
+});
 
 export const getWriteProduct = () => {
   const conn = getWriteDB();
