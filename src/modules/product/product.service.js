@@ -14,7 +14,7 @@ class ProductService {
 
   async _updateFeaturedProductsCache() {
     const ProductWrite = getWriteProduct();
-    const products = await ProductWrite.find({ bestSeller: true }).limit(8).lean();
+    const products = await ProductWrite.find({ bestSeller: true, stockQuantity: { $gt: 0 } }).limit(8).lean();
     await redisClient.setex(REDIS_KEYS.FEATURED_PRODUCTS, 86400, JSON.stringify(products));
   }
 
@@ -40,7 +40,7 @@ class ProductService {
     }
 
     const ProductRead = getReadProduct();
-    const products = await ProductRead.find({ bestSeller: true })
+    const products = await ProductRead.find({ bestSeller: true, stockQuantity: { $gt: 0 } })
       .limit(8)
       .lean();
 
