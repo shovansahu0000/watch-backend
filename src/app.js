@@ -14,6 +14,7 @@ import orderRoutes from './modules/order/order.route.js';
 import userRoutes from './modules/user/user.route.js';
 import webhookRoutes from './modules/webhook/webhook.route.js';
 import brandRoutes from './modules/brand/brand.route.js';
+import couponRoutes from './modules/coupon/coupon.route.js';
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use('/api/brands', brandRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/coupons', couponRoutes);
 
 app.all('*', (req, res, next) => {
   next(new CustomError(`Can't find ${req.originalUrl} on this server!`, 404));

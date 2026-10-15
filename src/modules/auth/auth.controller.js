@@ -67,22 +67,22 @@ class AuthController {
 
   adminVerifyOtp = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
-    const { user, accessToken } = await authService.adminVerifyOtp(email, otp);
+    const { user, adminToken } = await authService.adminVerifyOtp(email, otp);
 
-    const accessCookieOptions = {
+    const adminCookieOptions = {
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       httpOnly: true
     };
 
-    res.cookie('accessToken', accessToken, accessCookieOptions);
+    res.cookie('adminToken', adminToken, adminCookieOptions);
 
-    return ApiResponse.success(res, { user, accessToken }, 'Admin logged in successfully');
+    return ApiResponse.success(res, { user }, 'Admin logged in successfully');
   });
 
   adminLogout = asyncHandler(async (req, res) => {
-    res.cookie('accessToken', 'loggedout', {
+    res.cookie('adminToken', 'loggedout', {
       expires: new Date(Date.now() + 10 * 1000),
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',

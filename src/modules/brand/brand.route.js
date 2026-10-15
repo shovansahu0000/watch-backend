@@ -9,8 +9,8 @@ const router = Router();
 
 router.get('/', brandController.getBrands);
 
-router.post('/admin', authenticate, restrictToAdmin, validate(createBrandSchema), brandController.createBrand);
-router.put('/admin/:id', authenticate, restrictToAdmin, validate(updateBrandSchema), brandController.updateBrand);
-router.delete('/admin/:id', authenticate, restrictToAdmin, brandController.deleteBrand);
+router.post('/admin', restrictToAdmin, validate(createBrandSchema), brandController.createBrand);
+router.put('/admin/:id', restrictToAdmin, validate(updateBrandSchema), brandController.updateBrand);
+router.delete('/admin/:id', restrictToAdmin, brandController.deleteBrand);
 
 export default router;

@@ -128,15 +128,15 @@ class AuthService {
       throw new CustomError("Unauthorized access", 403);
     }
 
-    const accessToken = jwt.sign(
+    const adminToken = jwt.sign(
       { id: user._id, role: user.role },
-      env.JWT_ACCESS_SECRET,
+      env.JWT_ADMIN_SECRET,
       {
-        expiresIn: env.JWT_ACCESS_EXPIRES_IN,
+        expiresIn: env.JWT_ADMIN_EXPIRES_IN,
       }
     );
 
-    return { user, accessToken };
+    return { user, adminToken };
   }
 }
 

@@ -17,7 +17,8 @@ const userSchema = new Schema({
     postalCode: String,
     country: String
   },
-  refreshToken: { type: String }
+  refreshToken: { type: String },
+  usedCoupons: [{ type: Schema.Types.ObjectId, ref: 'Coupon' }]
 }, { timestamps: true });
 
 export const getWriteUser = () => {

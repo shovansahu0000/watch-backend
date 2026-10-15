@@ -12,8 +12,8 @@ router.get('/featured', productController.getFeaturedProducts);
 router.get('/', productController.getProducts);
 router.get('/:sku', productController.getProductBySku);
 
-router.post('/admin', authenticate, restrictToAdmin, uploadWatchImages, validate(createProductSchema), productController.createProduct);
-router.put('/admin/:sku', authenticate, restrictToAdmin, uploadWatchImages, validate(updateProductSchema), productController.updateProduct);
-router.delete('/admin/:sku', authenticate, restrictToAdmin, productController.deleteProduct);
+router.post('/admin', restrictToAdmin, uploadWatchImages, validate(createProductSchema), productController.createProduct);
+router.put('/admin/:sku', restrictToAdmin, uploadWatchImages, validate(updateProductSchema), productController.updateProduct);
+router.delete('/admin/:sku', restrictToAdmin, productController.deleteProduct);
 
 export default router;

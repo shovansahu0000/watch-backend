@@ -6,6 +6,8 @@ export const REDIS_KEYS = {
   USER_CART: (userId) => `cart:${userId}`,
   ALL_PRODUCTS: "products:all",
   ALL_BRANDS: "brands:all",
+  COUPON: (code) => `coupon:${code.toUpperCase()}`,
+  ALL_COUPONS: "coupons:all",
 };
 
 export const ORDER_STATUS = {

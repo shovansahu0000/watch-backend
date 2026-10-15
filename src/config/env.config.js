@@ -13,6 +13,8 @@ const envSchema = Joi.object({
   JWT_ACCESS_EXPIRES_IN: Joi.string().default('1d'),
   JWT_REFRESH_SECRET: Joi.string().required(),
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('30d'),
+  JWT_ADMIN_SECRET: Joi.string().required(),
+  JWT_ADMIN_EXPIRES_IN: Joi.string().default('1d'),
   FRONTEND_URL: Joi.string().default('http://localhost:5173'),
   DASHBOARD_URL: Joi.string().default('http://localhost:5174'),
   RESEND_API_KEY: Joi.string().required(),
